@@ -67,7 +67,24 @@ app.get("/user", async (req, res) => {
   }
 });
 
-app.get("/users", async (req, res) => {
+app.get("/user/:id", async (req, res) => {
+  const userId = req.params.id; // Gets id from the URL
+
+  try {
+    const user = await User.findById(userId); // Use findById for MongoDB _id
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    res.send(user);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).send("Error fetching user");
+  }
+});
+
+app.get("/feed", async (req, res) => {
   try {
     const user = await User.find({});
     console.log(user, "-----------------");
@@ -92,12 +109,12 @@ app.delete("/users", async (req, res) => {
 
 
 
-app.patch("/users",async (req, res) => {
+app.patch("/user",async (req, res) => {
   const userid = req.body.userid;
   const data = req.body;
 
   try {
-    const user = await User.findByIdAndUpdate(userid, data);
+    const user = await User.findByIdAndUpdate(userid, data,{runValidators:true});
     console.log(user, "-----------------");
     res.send("user updated successfully");
   } catch (err) {
