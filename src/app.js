@@ -2,6 +2,7 @@ console.log("hii");
 const express = require("express");
 const app = express();
 const port = 3000;
+const {validatorsignupData} = require("./utils/validation");
 const connectDb = require("./config/database");
 
 const User = require("./models/user");
@@ -9,6 +10,10 @@ const User = require("./models/user");
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
+
+  try {
+  validatorsignupData(req);
+
   console.log("🔥 Signup route was hit!");
   console.log(req.body, "-----------------");
 
@@ -21,7 +26,6 @@ app.post("/signup", async (req, res) => {
   // });
   //
 
-  try {
     await user.save();
     console.log("User saved successfully:", user);
     res.send("User added successfully");
