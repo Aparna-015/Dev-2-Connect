@@ -6,6 +6,7 @@ const {validatorsignupData} = require("./utils/validation");
 const connectDb = require("./config/database");
 
 const User = require("./models/user");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 
@@ -13,11 +14,16 @@ app.post("/signup", async (req, res) => {
 
   try {
   validatorsignupData(req);
+  const {firstName, lastName, email, password} = req.body;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  console.log("Hashed password:", hashedPassword);
 
   console.log("🔥 Signup route was hit!");
   console.log(req.body, "-----------------");
 
-  const user = new User(req.body);
+  const user = new User({ firstName, lastName, email, password: hashedPassword });
+
   // const user = new User({
   //   firstName: "John",
   //   lastName: "Doe",
