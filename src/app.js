@@ -1,6 +1,8 @@
 console.log("hii");
 const express = require("express");
+const cookieparser=require("cookie-parser");
 const app = express();
+app.use(cookieparser());
 const port = 3000;
 const { validatorsignupData } = require("./utils/validation");
 const connectDb = require("./config/database");
@@ -56,7 +58,9 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid Credential");
     }
 
-    const ispasswordValid =await bcrypt.compare(password, user.password);
+    const ispasswordValid = await bcrypt.compare(password, user.password);
+
+    res.cookie("token", "tvvkkkkkkkkkkkkkkkkkkdfsdffsfsfsfsdf");
     console.log(ispasswordValid, ispasswordValid);
     if (ispasswordValid) {
       res.send("login successfull");
@@ -66,8 +70,16 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     res.status(500).send("Error " + err.message);
   }
-
 });
+
+app.get('/profile',(req,res)=>{
+
+const cookies=req.cookies;  
+
+console.log(cookies,"-----------------");
+res.send("profile page")
+
+})
 
 // app.get("/users", async (req, res) => {
 //   const useremail = req.query.email;
