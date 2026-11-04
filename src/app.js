@@ -1,7 +1,8 @@
 console.log("hii");
 const express = require("express");
-const cookieparser=require("cookie-parser");
+const cookieparser = require("cookie-parser");
 const app = express();
+const jwt = require("jsonwebtoken");
 app.use(cookieparser());
 const port = 3000;
 const { validatorsignupData } = require("./utils/validation");
@@ -60,7 +61,11 @@ app.post("/login", async (req, res) => {
 
     const ispasswordValid = await bcrypt.compare(password, user.password);
 
-    res.cookie("token", "tvvkkkkkkkkkkkkkkkkkkdfsdffsfsfsfsdf");
+    const token = await jwt.sign({ _id: user._id }, "DevTinder@26");
+    console.log(token, "-----------------");
+    // userid is hidden inside this jwt token
+
+    res.cookie("token", token);
     console.log(ispasswordValid, ispasswordValid);
     if (ispasswordValid) {
       res.send("login successfull");
@@ -72,14 +77,31 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get('/profile',(req,res)=>{
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+    if(!token){
+      throw new Error("Token not found"); }
 
-const cookies=req.cookies;  
+    const decodedmessage = await jwt.verify(token, "DevTinder@26");
+    console.log(decodedmessage, "decoded message");
+    const { _id } = decodedmessage;
+    console.log("logged user is", +_id);
 
-console.log(cookies,"-----------------");
-res.send("profile page")
+    const user = await User.findOne({ _id: _id });
+    if(!user){
+      throw new Error("User not found");
+    }
+    console.log(user, "profile user");
 
-})
+    console.log(cookies, "profile cookies");
+
+    res.send(user);
+  } catch (err) {
+    res.send.status(500).send("Error " + err.message);
+  }
+});
 
 // app.get("/users", async (req, res) => {
 //   const useremail = req.query.email;
