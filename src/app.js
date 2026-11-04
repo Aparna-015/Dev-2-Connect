@@ -7,6 +7,7 @@ app.use(cookieparser());
 const port = 3000;
 const { validatorsignupData } = require("./utils/validation");
 const connectDb = require("./config/database");
+const { Userauth } = require("./middlewares/auth");
 
 const User = require("./models/user");
 const bcrypt = require("bcrypt");
@@ -77,26 +78,12 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", Userauth, async (req, res) => {
   try {
-    const cookies = req.cookies;
-    const { token } = cookies;
-    if(!token){
-      throw new Error("Token not found"); }
+    
 
-    const decodedmessage = await jwt.verify(token, "DevTinder@26");
-    console.log(decodedmessage, "decoded message");
-    const { _id } = decodedmessage;
-    console.log("logged user is", +_id);
-
-    const user = await User.findOne({ _id: _id });
-    if(!user){
-      throw new Error("User not found");
-    }
-    console.log(user, "profile user");
-
-    console.log(cookies, "profile cookies");
-
+    const user = req.user; // Access the user object attached by the middleware
+    console.log("User profile:", user);
     res.send(user);
   } catch (err) {
     res.send.status(500).send("Error " + err.message);
