@@ -80,8 +80,6 @@ app.post("/login", async (req, res) => {
 
 app.get("/profile", Userauth, async (req, res) => {
   try {
-    
-
     const user = req.user; // Access the user object attached by the middleware
     console.log("User profile:", user);
     res.send(user);
@@ -121,7 +119,6 @@ app.get("/user", async (req, res) => {
 
     res.send(user);
   } catch (err) {
-    console.error("Error fetching user:", err);
     res.status(500).send("Error fetching user");
   }
 });
@@ -130,8 +127,7 @@ app.get("/user/:id", async (req, res) => {
   const userId = req.params.id; // Gets id from the URL
 
   try {
-    const user = await User.findById(userId); // Use findById for MongoDB _id
-
+    const user = await User.findById(userId); 
     if (!user) {
       return res.status(404).send("User not found");
     }
